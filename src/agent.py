@@ -70,7 +70,10 @@ class AIBTCAgent:
         self.bns = BNSRegistrar(config.stacks_api_url, config.network)
         self.avatar_manager = AvatarManager()
         self.sbtc = SBTCManager(config.stacks_api_url, config.network)
-        self.verifier = MCPVerifier(config.stacks_api_url)
+        self.verifier = MCPVerifier(
+            config.stacks_api_url,
+            appleseed_path=config.appleseed_path
+        )
 
         # Track airdrops
         self.airdrop_history: List[AirdropRecord] = []

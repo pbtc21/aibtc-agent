@@ -41,6 +41,9 @@ class AgentConfig:
     # Moltbook
     moltbook_api_url: str
 
+    # Appleseed integration (optional)
+    appleseed_path: Optional[str]
+
     @classmethod
     def from_env(cls) -> "AgentConfig":
         """Load configuration from environment variables."""
@@ -61,6 +64,7 @@ class AgentConfig:
             facilitator_url=os.getenv("FACILITATOR_URL", "https://facilitator.stacksx402.com"),
             avatar_url=os.getenv("AVATAR_URL"),
             moltbook_api_url=os.getenv("MOLTBOOK_API_URL", "https://api.moltbook.ai"),
+            appleseed_path=os.getenv("APPLESEED_PATH"),
         )
 
 

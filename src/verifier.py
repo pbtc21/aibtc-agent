@@ -91,9 +91,11 @@ class MCPVerifier:
         self,
         api_url: str = "https://api.hiro.so",
         min_stx_balance: int = 100_000,  # 0.1 STX minimum
+        appleseed_path: Optional[str] = None,
     ):
         self.api_url = api_url
         self.min_stx_balance = min_stx_balance
+        self.appleseed_path = appleseed_path
         self.verified_agents: Dict[str, AgentRecord] = {}
         self.daily_airdrop_count = 0
         self.last_reset = datetime.now()
@@ -213,10 +215,31 @@ class MCPVerifier:
         """
         Check if GitHub repo has MCP setup.
 
+        Uses appleseed verify-mcp if available, otherwise falls back to HTTP checks.
         Looks for:
         - package.json with @aibtc/mcp-server
         - mcp.json or .mcp/config.json
         """
+        # Try appleseed first if available
+        if self.appleseed_path:
+            try:
+                import subprocess
+                import json
+                result = subprocess.run(
+                    ["bun", "run", f"{self.appleseed_path}/src/index.ts", "verify-mcp", f"https://github.com/{repo}"],
+                    capture_output=True,
+                    text=True,
+                    timeout=60
+                )
+                if "Eligible for airdrop: YES" in result.stdout:
+                    return True
+                elif "Eligible for airdrop: no" in result.stdout:
+                    return False
+                # Fall through to HTTP check if appleseed output unclear
+            except Exception:
+                pass  # Fall back to HTTP check
+
+        # HTTP fallback
         async with httpx.AsyncClient() as client:
             try:
                 # Check package.json
